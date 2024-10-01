@@ -37,6 +37,7 @@ describe ConsistentRandom do
         r1 = ConsistentRandom.new("foo").random
         r2 = ConsistentRandom.new("foo").random
         expect(rand1).to eq(rand2)
+        expect(r1).to eq(r2)
       end
     end
 

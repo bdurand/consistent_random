@@ -6,7 +6,9 @@
 
 ## Introduction
 
-This Ruby gem allows you to generate consistent random values tied to a specific name within a defined scope. It ensures that random behavior remains consistent within a particular context, such as handling feature rollouts. For example, when enabling a new feature for a subset of requests, the gem ensures the behavior remains consistent across requests within a defined scope.
+This Ruby gem allows you to generate consistent random values tied to a specific name within a defined scope. It ensures that random behavior remains consistent within a particular context, such as handling feature rollouts.
+
+For example, consider rolling out a new feature to a subset of requests, such as enabling the feature for 10% of requests. You want to randomize which requests get the new feature, but ensure that within each request, the feature is consistently enabled or disabled across all actions. This gem allows you to achieve that by tying random values to specific names and defining a scope. Within that scope, the same value will be consistently generated for each named variable.
 
 ## Usage
 

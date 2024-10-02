@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Brian Durand"]
   spec.email = ["bbdurand@gmail.com"]
 
-  spec.summary = "Gem to allow consistent generation of a named random number within a block."
+  spec.summary = "Generates consistent random values within a defined scope, ensuring deterministic behavior for use in feature rollouts and other scoped operations."
 
   spec.homepage = "https://github.com/bdurand/consistent_random"
   spec.license = "MIT"

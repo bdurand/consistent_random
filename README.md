@@ -6,7 +6,7 @@
 
 ## Introduction
 
-This Ruby gem generates consistent random values within a defined scope, tied to a specific name. It ensures that random behavior remains consistent within a particular context, such as handling feature rollouts. For example, when enabling a new feature for a subset of requests, the gem ensures the behavior remains consistent across requests within a defined scope.
+This Ruby gem allows you to generate consistent random values tied to a specific name within a defined scope. It ensures that random behavior remains consistent within a particular context, such as handling feature rollouts. For example, when enabling a new feature for a subset of requests, the gem ensures the behavior remains consistent across requests within a defined scope.
 
 ## Usage
 
@@ -15,8 +15,8 @@ To generate consistent random values, you need to define a scope. You do this wi
 ```ruby
 ConsistentRandom.scope do
   random = ConsistentRandom.new("foobar")
-  a = random.rand(100) # Generates a random number tied to "foobar"
-  b = random.rand(100) # Generates the same number as 'a', since the name is the same
+  a = random.rand(100) # Generates a random number between 0 and 99 tied to "foobar"
+  b = random.rand(100) # Same random number as 'a', because "foobar" is reused
   a == b # => true
 end
 ```
@@ -50,7 +50,7 @@ class MyService
 end
 
 ConsistentRandom.scope do
-  all_the_things.each do |thing|
+  things.each do |thing|
     MyService.new.call(thing) # You won't get a mix of new and old behavior within this iteration
   end
 end

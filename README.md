@@ -96,6 +96,10 @@ Sidekiq.configure_server do |config|
   config.server_middleware do |chain|
     chain.add ConsistentRandom::SidekiqMiddleware
   end
+
+  config.client_middleware do |chain|
+    chain.add ConsistentRandom::SidekiqClientMiddleware
+  end
 end
 
 Sidekiq.configure_client do |config|

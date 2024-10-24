@@ -1,4 +1,4 @@
-# Constant Random
+# Consistent Random
 
 [![Continuous Integration](https://github.com/bdurand/consistent_random/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/bdurand/consistent_random/actions/workflows/continuous_integration.yml)
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://github.com/testdouble/standard)
@@ -6,9 +6,9 @@
 
 ## Introduction
 
-This Ruby gem allows you to generate consistent random values tied to a specific name within a defined scope. It ensures that random behavior remains consistent within a particular context, such as handling feature rollouts.
+This Ruby gem allows you to generate consistent random values tied to a specific name within a defined scope. It ensures that random behavior remains consistent within a particular context.
 
-For example, consider rolling out a new feature to a subset of requests, such as enabling the feature for 10% of requests. You want to randomize which requests get the new feature, but ensure that within each request, the feature is consistently enabled or disabled across all actions. This gem allows you to achieve that by tying random values to specific names and defining a scope. Within that scope, the same value will be consistently generated for each named variable.
+For example, consider rolling out a new feature to a subset of requests. You may want to do this to allow testing a new feature by only enabling it for 10% of requests. You want to randomize which requests get the new feature, but ensure that within each request, the feature is consistently enabled or disabled across all actions. This gem allows you to achieve that by tying random values to specific names and defining a scope. Within that scope, the same value will be consistently generated for each named variable.
 
 ## Usage
 
@@ -89,7 +89,7 @@ config.middleware.use ConsistentRandom::RackMiddleware
 
 #### Sidekiq Middleware
 
-Add the middleware to your Sidekiq server configuration:
+Add the middlewares to your Sidekiq configuration:
 
 ```ruby
 Sidekiq.configure_server do |config|
@@ -105,7 +105,7 @@ Sidekiq.configure_client do |config|
 end
 ```
 
-Consistent random values will be propagated from the original request to any Sidekiq jobs. You can disable this behavior by setting the `conistent_random` sidekiq option to `false`:
+Consistent random values will be propagated from the original request to any Sidekiq jobs so you will get consistent behavior on any ansynchronous jobs. You can disable this behavior on a job by setting the `conistent_random` sidekiq option to `false`:
 
 ```ruby
 class MyWorker
@@ -121,7 +121,7 @@ end
 
 ### ActiveJob
 
-You can use consistent random values in your ActiveJob jobs by including the `ConsistentRandom::ActiveJob` module:
+You can use consistent random values in your ActiveJob jobs by including the `ConsistentRandom::ActiveJob` module.
 
 ```ruby
 class MyJob < ApplicationJob
@@ -133,7 +133,7 @@ class MyJob < ApplicationJob
 end
 ```
 
-You can force a job to use it's own random scope by setting the `consistent_random` option to `false`:
+Jobs will inherit the same consistent random values as the request that spawned the job. You can force a job to use it's own random scope by setting the `consistent_random` option to `false`:
 
 ```ruby
 class MyJob < ApplicationJob

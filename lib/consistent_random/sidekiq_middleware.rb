@@ -9,7 +9,7 @@ class ConsistentRandom
     end
 
     def call(job_instance, job_payload, queue)
-      ConsistentRandom.scope do
+      ConsistentRandom.scope(job_payload["consistent_random_seed"]) do
         yield
       end
     end

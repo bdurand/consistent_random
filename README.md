@@ -97,6 +97,54 @@ Sidekiq.configure_server do |config|
     chain.add ConsistentRandom::SidekiqMiddleware
   end
 end
+
+Sidekiq.configure_client do |config|
+  config.client_middleware do |chain|
+    chain.add ConsistentRandom::SidekiqClientMiddleware
+  end
+end
+```
+
+Consistent random values will be propagated from the original request to any Sidekiq jobs. You can disable this behavior by setting the `conistent_random` sidekiq option to `false`:
+
+```ruby
+class MyWorker
+  include Sidekiq::Job
+
+  sidekiq_options consistent_random: false
+
+  def perform
+    # Each job will use it's own random scope.
+  end
+end
+```
+
+### ActiveJob
+
+You can use consistent random values in your ActiveJob jobs by including the `ConsistentRandom::ActiveJob` module:
+
+```ruby
+class MyJob < ApplicationJob
+  include ConsistentRandom::ActiveJob
+
+  def perform
+    # Job will use consistent random values using the same scope from when it was enqueued.
+  end
+end
+```
+
+You can force a job to use it's own random scope by setting the `consistent_random` option to `false`:
+
+```ruby
+class MyJob < ApplicationJob
+  include ConsistentRandom::ActiveJob
+
+  self.inherit_consistent_random_scope = false
+
+  def perform
+    # Job will use it's own random scope.
+  end
+end
 ```
 
 ## Installation

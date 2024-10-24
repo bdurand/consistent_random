@@ -54,9 +54,37 @@ describe ConsistentRandom do
         expect(value).to be_between(1_000, 1_000_000_000)
       end
     end
+
+    it "generates a value within an inclusive range" do
+      distribution = Hash.new(0)
+      2000.times do
+        ConsistentRandom.scope do
+          value = ConsistentRandom.new("foo").rand(2..4)
+          distribution[value] += 1
+        end
+      end
+      expect(distribution.keys).to match_array([2, 3, 4])
+    end
+
+    it "generates a value within a exclusive range" do
+      distribution = Hash.new(0)
+      2000.times do
+        ConsistentRandom.scope do
+          value = ConsistentRandom.new("foo").rand(2...5)
+          distribution[value] += 1
+        end
+      end
+      expect(distribution.keys).to match_array([2, 3, 4])
+    end
   end
 
   describe "#bytes" do
+    it "returns an ascii string of random bytes" do
+      bytes = ConsistentRandom.new("foo").bytes(128)
+      expect(bytes.length).to eq(128)
+      expect(bytes.encoding).to eq(Encoding::ASCII_8BIT)
+    end
+
     it "returns consistent random bytes within a scope" do
       ConsistentRandom.scope do
         bytes1 = ConsistentRandom.new("foo").bytes(128)
@@ -79,23 +107,39 @@ describe ConsistentRandom do
       end
     end
 
-    it "can nest scopes" do
+    it "can change the seed in a nested scope" do
       ConsistentRandom.scope do
-        value1 = ConsistentRandom.new("foo").rand
-        value2 = nil
-        ConsistentRandom.scope do
-          expect(ConsistentRandom.new("foo").rand).to eq(value1)
-          value2 = ConsistentRandom.new("bar").rand
+        value = ConsistentRandom.new("foo").rand
+        ConsistentRandom.scope(123) do
+          expect(ConsistentRandom.new("foo").rand).not_to eq(value)
         end
-        expect(ConsistentRandom.new("bar").rand).not_to eq(value2)
+        expect(ConsistentRandom.new("foo").rand).to eq(value)
       end
     end
 
-    it "rerturns the result of the block" do
+    it "returns the result of the block" do
       result = ConsistentRandom.scope do
         :done
       end
       expect(result).to eq(:done)
+    end
+
+    it "can manually specify the scope seed" do
+      value_1 = ConsistentRandom.scope("foobar") { ConsistentRandom.new("foo").rand }
+      value_2 = ConsistentRandom.scope("foobar") { ConsistentRandom.new("foo").rand }
+      expect(value_1).to eq(value_2)
+    end
+
+    it "can specify an integer as the scope seed" do
+      value_1 = ConsistentRandom.scope(123) { ConsistentRandom.new("foo").rand }
+      value_2 = ConsistentRandom.scope(123) { ConsistentRandom.new("foo").rand }
+      expect(value_1).to eq(value_2)
+    end
+
+    it "can specify an array as the scope seed" do
+      value_1 = ConsistentRandom.scope([1, 2, 3]) { ConsistentRandom.new("foo").rand }
+      value_2 = ConsistentRandom.scope([1, 2, 3]) { ConsistentRandom.new("foo").rand }
+      expect(value_1).to eq(value_2)
     end
   end
 end

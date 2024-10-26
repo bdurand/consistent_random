@@ -7,7 +7,7 @@ describe ConsistentRandom::SidekiqMiddleware do
     middleware = ConsistentRandom::SidekiqMiddleware.new
     job = {"args" => {"foo" => "bar"}}
     result = middleware.call(Object, job, "default") do
-      expect(ConsistentRandom.new("foo").random).to eq(ConsistentRandom.new("foo").random)
+      expect(ConsistentRandom.new("foo").rand).to eq(ConsistentRandom.new("foo").rand)
       :done
     end
     expect(result).to eq(:done)

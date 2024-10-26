@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added optional seed block
+- Added optional seed block to the Rack middleware to allow for custom seed values based on the request.
+- Added helper method `ConsistentRandom::SidekiqMiddleware.install` to install both the client and server middlewares in one call.
 
 ## 2.0.0
 

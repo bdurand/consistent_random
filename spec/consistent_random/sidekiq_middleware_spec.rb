@@ -25,4 +25,44 @@ describe ConsistentRandom::SidekiqMiddleware do
 
     expect(result).to eq(:done)
   end
+
+  if defined?(Sidekiq)
+    before do
+      Sidekiq.configure_server do |config|
+        config.server_middleware do |chain|
+          chain.clear
+        end
+        config.client_middleware do |chain|
+          chain.clear
+        end
+      end
+
+      Sidekiq.configure_client do |config|
+        config.client_middleware do |chain|
+          chain.clear
+        end
+      end
+    end
+
+    it "can install the client middleware" do
+      ConsistentRandom::SidekiqMiddleware.install
+      Sidekiq.configure_client do |config|
+        config.client_middleware do |chain|
+          expect(chain).to include(ConsistentRandom::SidekiqClientMiddleware)
+        end
+      end
+    end
+
+    it "can install the server middleware" do
+      ConsistentRandom::SidekiqMiddleware.install
+      Sidekiq.configure_server do |config|
+        config.server_middleware do |chain|
+          expect(chain).to include(ConsistentRandom::SidekiqMiddleware)
+        end
+        config.client_middleware do |chain|
+          expect(chain).to include(ConsistentRandom::SidekiqClientMiddleware)
+        end
+      end
+    end
+  end
 end

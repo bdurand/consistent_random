@@ -3,14 +3,14 @@
 require "digest/sha1"
 require "securerandom"
 
-require_relative "consistent_random/rack_middleware"
-require_relative "consistent_random/sidekiq_middleware"
-require_relative "consistent_random/sidekiq_client_middleware"
-require_relative "consistent_random/active_job"
-
 class ConsistentRandom
   SEED_DIVISOR = (2**64 - 1).to_f
   private_constant :SEED_DIVISOR
+
+  autoload :RackMiddleware, "consistent_random/rack_middleware"
+  autoload :SidekiqMiddleware, "consistent_random/sidekiq_middleware"
+  autoload :SidekiqClientMiddleware, "consistent_random/sidekiq_client_middleware"
+  autoload :ActiveJob, "consistent_random/active_job"
 
   class << self
     # Define a scope where consistent random values will be generated.

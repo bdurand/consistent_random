@@ -112,7 +112,13 @@ If the seed block returns `nil`, then a random seed will be generated for the re
 
 ### Sidekiq Middleware
 
-Add the middlewares to your Sidekiq configuration:
+Add the middlewares to your Sidekiq in an initializer:
+
+```ruby
+ConsistentRandom::SidekiqMiddleware.install
+```
+
+This will install both the client and server middleware. You can also install them manually if you need more control on the order of the middlewares:
 
 ```ruby
 Sidekiq.configure_server do |config|

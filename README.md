@@ -118,12 +118,12 @@ Add the middlewares to your Sidekiq in an initializer:
 ConsistentRandom::SidekiqMiddleware.install
 ```
 
-This will install both the client and server middleware. You can also install them manually if you need more control on the order of the middlewares:
+This will install both the client and server middleware. You can also install them manually if you need more control on the order of the middlewares. You should install the client middleware on both the server and client configurations.
 
 ```ruby
 Sidekiq.configure_server do |config|
   config.server_middleware do |chain|
-    chain.add ConsistentRandom::SidekiqMiddleware
+    chain.prepend ConsistentRandom::SidekiqMiddleware
   end
 
   config.client_middleware do |chain|

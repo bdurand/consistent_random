@@ -17,7 +17,7 @@ For example, consider rolling out a new feature to a subset of requests. You may
 - [Middlewares](#middlewares)
   - [Rack Middleware](#rack-middleware)
   - [Sidekiq Middleware](#sidekiq-middleware)
-  - [ActiveJob Integration](#activejob)
+  - [ActiveJob](#activejob)
 - [Installation](#installation)
 - [Contributing](#contributing)
 - [License](#license)
@@ -77,11 +77,11 @@ random = ConsistentRandom.new("foobar")
 random.rand != random.rand # => true
 ```
 
-### Middlewares
+## Middlewares
 
 The gem provides built-in middlewares for Rack, Sidekiq, and ActiveJob. These middlewares allow you to automatically scope web requests and propagate consistent random values from the original request to asynchronous jobs.
 
-#### Rack Middleware
+### Rack Middleware
 
 In a Rack application:
 
@@ -110,7 +110,7 @@ end
 
 If the seed block returns `nil`, then a random seed will be generated for the request.
 
-#### Sidekiq Middleware
+### Sidekiq Middleware
 
 Add the middlewares to your Sidekiq configuration:
 

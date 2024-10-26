@@ -48,7 +48,7 @@ describe ConsistentRandom::SidekiqMiddleware do
       ConsistentRandom::SidekiqMiddleware.install
       Sidekiq.configure_client do |config|
         config.client_middleware do |chain|
-          expect(chain).to include(ConsistentRandom::SidekiqClientMiddleware)
+          expect(chain.exists?(ConsistentRandom::SidekiqClientMiddleware)).to be(true)
         end
       end
     end
@@ -57,10 +57,10 @@ describe ConsistentRandom::SidekiqMiddleware do
       ConsistentRandom::SidekiqMiddleware.install
       Sidekiq.configure_server do |config|
         config.server_middleware do |chain|
-          expect(chain).to include(ConsistentRandom::SidekiqMiddleware)
+          expect(chain.exists?(ConsistentRandom::SidekiqMiddleware)).to be(true)
         end
         config.client_middleware do |chain|
-          expect(chain).to include(ConsistentRandom::SidekiqClientMiddleware)
+          expect(chain.exists?(ConsistentRandom::SidekiqClientMiddleware)).to be(true)
         end
       end
     end

@@ -7,7 +7,7 @@ describe ConsistentRandom::SidekiqMiddleware do
     middleware = ConsistentRandom::SidekiqMiddleware.new
     job = {"args" => {"foo" => "bar"}}
     result = middleware.call(Object, job, "default") do
-      expect(ConsistentRandom.new("foo").random).to eq(ConsistentRandom.new("foo").random)
+      expect(ConsistentRandom.new("foo").rand).to eq(ConsistentRandom.new("foo").rand)
       :done
     end
     expect(result).to eq(:done)
@@ -24,5 +24,45 @@ describe ConsistentRandom::SidekiqMiddleware do
     end
 
     expect(result).to eq(:done)
+  end
+
+  if defined?(Sidekiq)
+    before do
+      Sidekiq.configure_server do |config|
+        config.server_middleware do |chain|
+          chain.clear
+        end
+        config.client_middleware do |chain|
+          chain.clear
+        end
+      end
+
+      Sidekiq.configure_client do |config|
+        config.client_middleware do |chain|
+          chain.clear
+        end
+      end
+    end
+
+    it "can install the client middleware" do
+      ConsistentRandom::SidekiqMiddleware.install
+      Sidekiq.configure_client do |config|
+        config.client_middleware do |chain|
+          expect(chain.exists?(ConsistentRandom::SidekiqClientMiddleware)).to be(true)
+        end
+      end
+    end
+
+    it "can install the server middleware" do
+      ConsistentRandom::SidekiqMiddleware.install
+      Sidekiq.configure_server do |config|
+        config.server_middleware do |chain|
+          expect(chain.exists?(ConsistentRandom::SidekiqMiddleware)).to be(true)
+        end
+        config.client_middleware do |chain|
+          expect(chain.exists?(ConsistentRandom::SidekiqClientMiddleware)).to be(true)
+        end
+      end
+    end
   end
 end

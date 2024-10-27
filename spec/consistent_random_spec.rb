@@ -108,10 +108,12 @@ describe ConsistentRandom do
     end
 
     it "can change the seed in a nested scope" do
+      expected_val = ConsistentRandom.scope(123) { ConsistentRandom.new("foo").rand }
       ConsistentRandom.scope do
         value = ConsistentRandom.new("foo").rand
         ConsistentRandom.scope(123) do
           expect(ConsistentRandom.new("foo").rand).not_to eq(value)
+          expect(ConsistentRandom.new("foo").rand).to eq(expected_val)
         end
         expect(ConsistentRandom.new("foo").rand).to eq(value)
       end

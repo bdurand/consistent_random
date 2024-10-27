@@ -9,6 +9,11 @@ begin
 rescue LoadError
 end
 
+begin
+  require "sidekiq"
+rescue LoadError
+end
+
 ActiveJob::Base.logger = nil if defined?(ActiveJob)
 
 RSpec.configure do |config|

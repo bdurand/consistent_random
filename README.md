@@ -8,11 +8,23 @@
 
 This Ruby gem allows you to generate consistent random values tied to a specific name within a defined scope. It ensures that random behavior remains consistent within a particular context.
 
+Consistent Random is designed to simplify feature rollouts and other scenarios where you need to generate random values, but need those values to remain consistent within defined contexts.
+
 For example, consider rolling out a new feature to a subset of requests. You may want to do this to allow testing a new feature by only enabling it for 10% of requests. You want to randomize which requests get the new feature, but ensure that within each request, the feature is consistently enabled or disabled across all actions. This gem allows you to achieve that by tying random values to specific names and defining a scope. Within that scope, the same value will be consistently generated for each named variable.
+
+## Table of Contents
+- [Usage](#usage)
+- [Middlewares](#middlewares)
+  - [Rack Middleware](#rack-middleware)
+  - [Sidekiq Middleware](#sidekiq-middleware)
+  - [ActiveJob](#activejob)
+- [Installation](#installation)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Usage
 
-To generate consistent random values, you need to define a scope. You do this with the `ConsistentRandom.scope` method. Within the scope block, calls to `ConsistentRandom` will return the same random values for the same name.
+To generate consistent random values, you need to define a scope. Scopes are defined with the `ConsistentRandom.scope` method. Within the scope block, calls to `ConsistentRandom` will return the same random values for the same name. Scopes are isolated to the block in which they're defined, meaning random values are consistent within each scoped block but independent across threads or separate invocations.
 
 ```ruby
 ConsistentRandom.scope do
@@ -65,11 +77,11 @@ random = ConsistentRandom.new("foobar")
 random.rand != random.rand # => true
 ```
 
-### Middlewares
+## Middlewares
 
-The gem provides built-in middlewares for Rack and Sidekiq, automatically scoping requests and jobs. This ensures that consistent random values are generated within the request/job context.
+The gem provides built-in middlewares for Rack, Sidekiq, and ActiveJob. These middlewares allow you to automatically scope web requests and propagate consistent random values from the original request to asynchronous jobs.
 
-#### Rack Middleware
+### Rack Middleware
 
 In a Rack application:
 
@@ -87,14 +99,31 @@ Or in a Rails application:
 config.middleware.use ConsistentRandom::RackMiddleware
 ```
 
-#### Sidekiq Middleware
+You can also specify a seed value based on the request. This can be useful if you want to generate random values based on a specific request attribute, such as the current user.
 
-Add the middlewares to your Sidekiq configuration:
+```ruby
+Rack::Builder.app do
+  use ConsistentRandom::RackMiddleware, ->(env) { env["warden"].user.id }
+  run MyApp
+end
+```
+
+If the seed block returns `nil`, then a random seed will be generated for the request.
+
+### Sidekiq Middleware
+
+Add the middlewares to your Sidekiq in an initializer:
+
+```ruby
+ConsistentRandom::SidekiqMiddleware.install
+```
+
+This will install both the client and server middleware. You can also install them manually if you need more control on the order of the middlewares. You should install the client middleware on both the server and client configurations.
 
 ```ruby
 Sidekiq.configure_server do |config|
   config.server_middleware do |chain|
-    chain.add ConsistentRandom::SidekiqMiddleware
+    chain.prepend ConsistentRandom::SidekiqMiddleware
   end
 
   config.client_middleware do |chain|
@@ -123,6 +152,20 @@ class MyWorker
 end
 ```
 
+You can still specify a custom seed value in your worker if, for example, you want to ensure that values are consistent based on a user when the job is not enqueued from a Rack request.
+
+```ruby
+class MyWorker
+  include Sidekiq::Job
+
+  def perform(user_id)
+    ConsistentRandom.scope(user_id) do
+      ...
+    end
+  end
+end
+```
+
 ### ActiveJob
 
 You can use consistent random values in your ActiveJob jobs by including the `ConsistentRandom::ActiveJob` module.
@@ -147,6 +190,18 @@ class MyJob < ApplicationJob
 
   def perform
     # Job will use it's own random scope.
+  end
+end
+```
+
+You can still specify a custom seed value in your worker if, for example, you want to ensure that values are consistent based on a user when the job is not enqueued from a Rack request.
+
+```ruby
+class MyJob < ApplicationJob
+  def perform(user_id)
+    ConsistentRandom.scope(user_id) do
+      ...
+    end
   end
 end
 ```

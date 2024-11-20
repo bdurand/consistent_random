@@ -103,7 +103,7 @@ class ConsistentRandom
   #   the same random number generator. If called outside of a scope, then it will
   #   always return false.
   def ==(other)
-    other.is_a?(self.class) && other.seed = seed
+    other.is_a?(self.class) && other.seed == seed
   end
 
   # Generate a random number generator for the given name. The generator will always

@@ -144,4 +144,19 @@ describe ConsistentRandom do
       expect(value_1).to eq(value_2)
     end
   end
+
+  describe ".eq?" do
+    it "returns true if the values have the same seed" do
+      random_1 = ConsistentRandom.new("foo")
+      random_2 = ConsistentRandom.new("foo")
+      expect(random_1).to_not eq(random_2)
+      ConsistentRandom.scope do
+        expect(random_1).to eq(random_2)
+      end
+    end
+
+    it "return false if the comparison value is not a ConsistentRandom" do
+      expect(ConsistentRandom.new("foo")).not_to eq("foo")
+    end
+  end
 end

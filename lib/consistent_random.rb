@@ -51,11 +51,17 @@ class ConsistentRandom
     def current_seed
       Thread.current[:consistent_random_seed]
     end
+
+    def testing
+      Testing.new
+    end
   end
+
+  attr_reader :name
 
   # @param name [Object] a name used to identifuy a consistent random value
   def initialize(name)
-    @name = name
+    @name = (name.is_a?(String) ? name.dup : name.to_s).freeze
   end
 
   # Generate a random number. The same number will be generated within a scope block.
@@ -68,7 +74,7 @@ class ConsistentRandom
   #   a number in that range. If max is an number, then it will be an integer between 0 and that
   #   value. Otherwise, it will be a float between 0 and 1.
   def rand(max = nil)
-    value = seed / SEED_DIVISOR
+    value = Testing.current&.rand_for(name) || seed / SEED_DIVISOR
     case max
     when nil
       value
@@ -85,8 +91,14 @@ class ConsistentRandom
   # @param size [Integer] the number of bytes to generate.
   # @return [String] a string of random bytes.
   def bytes(size)
+    test_bytes = Testing.current&.bytes_for(name)&.encode(Encoding::ASCII_8BIT)
+    test_bytes = nil if test_bytes&.empty?
+    chunk_size = (test_bytes ? test_bytes.length : 20)
+
     bytes = []
-    ((size + 19) / 20).times { |i| bytes << seed_hash("#{@name}#{i}").to_s }
+    (size / chunk_size.to_f).ceil.times do |i|
+      bytes << (test_bytes || seed_hash("#{name}#{i}").to_s)
+    end
     bytes.join[0, size]
   end
 
@@ -95,13 +107,17 @@ class ConsistentRandom
   #
   # @return [Integer] a 64 bit integer for seeding random values
   def seed
-    hash = seed_hash(@name)
+    test_seed = Testing.current&.seed_for(name)
+    return test_seed if test_seed
+
+    hash = seed_hash(name)
     hash.byteslice(0, 8).unpack1("Q>")
   end
 
   # @return [Boolean] true if the other object is a ConsistentRandom that returns
   #   the same random number generator. If called outside of a scope, then it will
-  #   always return false.
+  #   always return false. The functionality is designed to be similar to the
+  #   same behavior as Random.
   def ==(other)
     other.is_a?(self.class) && other.seed == seed
   end
@@ -138,3 +154,5 @@ class ConsistentRandom
     int_range ? val.to_i : val
   end
 end
+
+require_relative "consistent_random/testing"

@@ -3,6 +3,12 @@
 require_relative "spec_helper"
 
 describe ConsistentRandom do
+  describe "#name" do
+    it "has a name" do
+      expect(ConsistentRandom.new("foo").name).to eq("foo")
+    end
+  end
+
   describe "#random" do
     it "returns a consistent random number generator for the same name within a scope" do
       ConsistentRandom.scope do

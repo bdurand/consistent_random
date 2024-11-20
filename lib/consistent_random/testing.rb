@@ -144,7 +144,7 @@ class ConsistentRandom
 
     def validate_rand(options)
       if options.is_a?(Hash) && options.values.all? { |value| value.is_a?(Float) && (0...1).cover?(value) }
-        options.stringify_keys
+        options.each_with_object({}) { |(key, value), hash| hash[key.to_s] = value }
       elsif options.is_a?(Float) && (0...1).cover?(options)
         Hash.new(options)
       end
@@ -152,7 +152,7 @@ class ConsistentRandom
 
     def validate_bytes(options)
       if options.is_a?(Hash) && options.values.all? { |value| value.is_a?(String) }
-        options.stringify_keys
+        options.each_with_object({}) { |(key, value), hash| hash[key.to_s] = value.encode(Encoding::ASCII_8BIT) }
       elsif options.is_a?(String)
         Hash.new(options)
       end
@@ -160,7 +160,7 @@ class ConsistentRandom
 
     def validate_seed(options)
       if options.is_a?(Hash) && options.values.all? { |value| value.is_a?(Integer) }
-        options.stringify_keys
+        options.each_with_object({}) { |(key, value), hash| hash[key.to_s] = value }
       elsif options.is_a?(Integer)
         Hash.new(options)
       end

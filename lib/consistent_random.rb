@@ -91,7 +91,7 @@ class ConsistentRandom
   # @param size [Integer] the number of bytes to generate.
   # @return [String] a string of random bytes.
   def bytes(size)
-    test_bytes = Testing.current&.bytes_for(name)&.encode(Encoding::ASCII_8BIT)
+    test_bytes = Testing.current&.bytes_for(name)
     test_bytes = nil if test_bytes&.empty?
     chunk_size = (test_bytes ? test_bytes.length : 20)
 

@@ -22,6 +22,16 @@ describe ConsistentRandom::Testing do
         expect(ConsistentRandom.new("foo").rand).to eq(0.5)
         expect(ConsistentRandom.new("bar").rand).to eq(0.6)
       end
+
+      ConsistentRandom.testing.rand(foo: 0.5).rand(0.6) do
+        expect(ConsistentRandom.new("foo").rand).to eq(0.5)
+        expect(ConsistentRandom.new("bar").rand).to eq(0.6)
+      end
+
+      ConsistentRandom.testing.rand(0.5).rand(bar: 0.6) do
+        expect(ConsistentRandom.new("foo").rand).to eq(0.5)
+        expect(ConsistentRandom.new("bar").rand).to eq(0.6)
+      end
     end
 
     it "generates a random value if the key does not match" do
@@ -75,6 +85,16 @@ describe ConsistentRandom::Testing do
         expect(ConsistentRandom.new("foo").bytes(3)).to eq("bar")
         expect(ConsistentRandom.new("bar").bytes(3)).to eq("baz")
       end
+
+      ConsistentRandom.testing.bytes(foo: "bar").bytes("baz") do
+        expect(ConsistentRandom.new("foo").bytes(3)).to eq("bar")
+        expect(ConsistentRandom.new("bar").bytes(3)).to eq("baz")
+      end
+
+      ConsistentRandom.testing.bytes("bar").bytes(bar: "baz") do
+        expect(ConsistentRandom.new("foo").bytes(3)).to eq("bar")
+        expect(ConsistentRandom.new("bar").bytes(3)).to eq("baz")
+      end
     end
 
     it "returns a string with ASCII-8BIT encoding" do
@@ -123,6 +143,16 @@ describe ConsistentRandom::Testing do
 
     it "can chain calls to seed" do
       ConsistentRandom.testing.seed(foo: 123).seed(bar: 456) do
+        expect(ConsistentRandom.new("foo").seed).to eq(123)
+        expect(ConsistentRandom.new("bar").seed).to eq(456)
+      end
+
+      ConsistentRandom.testing.seed(foo: 123).seed(456) do
+        expect(ConsistentRandom.new("foo").seed).to eq(123)
+        expect(ConsistentRandom.new("bar").seed).to eq(456)
+      end
+
+      ConsistentRandom.testing.seed(123).seed(bar: 456) do
         expect(ConsistentRandom.new("foo").seed).to eq(123)
         expect(ConsistentRandom.new("bar").seed).to eq(456)
       end

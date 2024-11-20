@@ -18,6 +18,7 @@ For example, consider rolling out a new feature to a subset of requests. You may
   - [Rack Middleware](#rack-middleware)
   - [Sidekiq Middleware](#sidekiq-middleware)
   - [ActiveJob](#activejob)
+- [Testing](#testing)
 - [Installation](#installation)
 - [Contributing](#contributing)
 - [License](#license)
@@ -203,6 +204,36 @@ class MyJob < ApplicationJob
       ...
     end
   end
+end
+```
+
+## Testing
+
+The gem provides a `ConsistentRandom.testing` method to allow for deterministic testing of random values. This method can be used to set fixed values within the block so that your tests will produce consistent results.
+
+```ruby
+# Specify that all random values should be 0.5
+ConsistentRandom.testing.rand(0.5) do
+  expect(ConsistentRandom.new("foo").rand).to eq(0.5)
+  expect(ConsistentRandom.new("bar").rand).to eq(0.5)
+
+  # The rand value must be between 0 and 1, but it will be scaled to fit
+  # any size or range specified for `rand`.
+  expect(ConsistentRandom.new("foo").rand(10)).to eq(5)
+end
+
+# You can also specify values for specific names.
+# If a values isn't specified, it will return a random value.
+ConsistentRandom.testing(foo: 0.5, bar: 0.8) do
+  expect(ConsistentRandom.new("foo").rand).to eq(0.5)
+  expect(ConsistentRandom.new("bar").rand).to eq(0.8)
+end
+
+# You can also specify values for the `bytes` and `seed` methods. The methods
+# for setting test valus can be chained together.
+ConsistentRandom.testing.bytes(foo: "bar").seed(baz: 123) do
+  expect(ConsistentRandom.new("foo").bytes(6)).to eq("barbar")
+  expect(ConsistentRandom.new("baz").seed).to eq(123)
 end
 ```
 

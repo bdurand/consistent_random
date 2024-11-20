@@ -5,6 +5,11 @@ appraise "no_dependencies" do
   remove_gem "sidekiq"
 end
 
+appraise "activejob_8" do
+  gem "activejob", "~> 8.0.0"
+  remove_gem "sidekiq"
+end
+
 appraise "activejob_7" do
   gem "activejob", "~> 7.0.0"
   remove_gem "sidekiq"

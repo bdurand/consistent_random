@@ -2,10 +2,12 @@
 
 class ConsistentRandom
   module ActiveJob
-    def self.included(base)
-      attr_reader :consistent_random_seeds
+    # @return [String, nil] the seed deserialized from the job data
+    # @api private
+    attr_reader :consistent_random_seed
 
-      base.around_perform :peform_with_consistent_random_scope
+    def self.included(base)
+      base.around_perform :perform_with_consistent_random_scope
 
       base.class_attribute :inherit_consistent_random_scope, instance_writer: false
     end
@@ -21,14 +23,14 @@ class ConsistentRandom
 
     def deserialize(job_data)
       super
-      @consistent_random_seeds = job_data["consistent_random_seed"]
+      @consistent_random_seed = job_data["consistent_random_seed"]
     end
 
     private
 
-    def peform_with_consistent_random_scope(&block)
-      seeds = consistent_random_seeds unless inherit_consistent_random_scope == false
-      ConsistentRandom.scope(seeds, &block)
+    def perform_with_consistent_random_scope(&block)
+      seed = consistent_random_seed unless inherit_consistent_random_scope == false
+      ConsistentRandom.scope(seed, &block)
     end
   end
 end

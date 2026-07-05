@@ -14,6 +14,7 @@ For example, consider rolling out a new feature to a subset of requests. You may
 
 ## Table of Contents
 - [Usage](#usage)
+  - [Threads and Fibers](#threads-and-fibers)
 - [Middlewares](#middlewares)
   - [Rack Middleware](#rack-middleware)
   - [Sidekiq Middleware](#sidekiq-middleware)
@@ -78,6 +79,24 @@ random = ConsistentRandom.new("foobar")
 random.rand != random.rand # => true
 ```
 
+### Threads and Fibers
+
+Scopes are stored in fiber-local state, so they do not propagate to threads or fibers spawned inside the scope block. Code running in a `Thread.new` block, an `Enumerator` (which runs on its own fiber), or Rails' `load_async` will not see the surrounding scope and will generate independent random values.
+
+If you need consistent values in spawned threads or fibers, capture the current seed and re-establish the scope inside them:
+
+```ruby
+ConsistentRandom.scope do
+  seed = ConsistentRandom.current_seed
+
+  Thread.new do
+    ConsistentRandom.scope(seed) do
+      # Values here are consistent with the parent scope.
+    end
+  end
+end
+```
+
 ## Middlewares
 
 The gem provides built-in middlewares for Rack, Sidekiq, and ActiveJob. These middlewares allow you to automatically scope web requests and propagate consistent random values from the original request to asynchronous jobs.
@@ -139,7 +158,7 @@ Sidekiq.configure_client do |config|
 end
 ```
 
-Consistent random values will be propagated from the original request to any Sidekiq jobs so you will get consistent behavior on any ansynchronous jobs. You can disable this behavior on a job by setting the `conistent_random` sidekiq option to `false`:
+Consistent random values will be propagated from the original request to any Sidekiq jobs so you will get consistent behavior on any asynchronous jobs. You can disable this behavior on a job by setting the `consistent_random` sidekiq option to `false`:
 
 ```ruby
 class MyWorker
@@ -224,7 +243,7 @@ end
 
 # You can also specify values for specific names.
 # If a values isn't specified, it will return a random value.
-ConsistentRandom.testing(foo: 0.5, bar: 0.8) do
+ConsistentRandom.testing.rand(foo: 0.5, bar: 0.8) do
   expect(ConsistentRandom.new("foo").rand).to eq(0.5)
   expect(ConsistentRandom.new("bar").rand).to eq(0.8)
 end

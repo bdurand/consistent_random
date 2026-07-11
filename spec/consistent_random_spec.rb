@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "spec_helper"
+require "spec_helper"
 
 describe ConsistentRandom do
   describe "#name" do
@@ -81,6 +81,47 @@ describe ConsistentRandom do
         end
       end
       expect(distribution.keys).to match_array([2, 3, 4])
+    end
+
+    it "generates a value within a range with negative bounds" do
+      distribution = Hash.new(0)
+      2000.times do
+        ConsistentRandom.scope do
+          value = ConsistentRandom.new("foo").rand(-5..5)
+          distribution[value] += 1
+        end
+      end
+      expect(distribution.keys).to match_array((-5..5).to_a)
+    end
+
+    it "generates uniformly distributed values within a range with negative bounds" do
+      values = (0...11).map do |bucket|
+        ConsistentRandom.testing.rand((bucket + 0.5) / 11) do
+          ConsistentRandom.new("foo").rand(-5..5)
+        end
+      end
+      expect(values).to eq((-5..5).to_a)
+    end
+
+    it "never returns an out of range value even for the maximum seed" do
+      ConsistentRandom.testing.seed(2**64 - 1) do
+        expect(ConsistentRandom.new("foo").rand).to be < 1.0
+        expect(ConsistentRandom.new("foo").rand(6)).to be_between(0, 5)
+        expect(ConsistentRandom.new("foo").rand(1..10)).to be_between(1, 10)
+      end
+    end
+
+    it "raises an error for an empty range" do
+      ConsistentRandom.scope do
+        expect { ConsistentRandom.new("foo").rand(5..1) }.to raise_error(ArgumentError)
+        expect { ConsistentRandom.new("foo").rand(2...2) }.to raise_error(ArgumentError)
+      end
+    end
+
+    it "raises an error for a non-numeric range" do
+      ConsistentRandom.scope do
+        expect { ConsistentRandom.new("foo").rand("a".."z") }.to raise_error(ArgumentError)
+      end
     end
   end
 

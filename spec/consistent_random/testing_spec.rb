@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../spec_helper"
+require "spec_helper"
 
 describe ConsistentRandom::Testing do
   describe "rand" do
@@ -124,6 +124,11 @@ describe ConsistentRandom::Testing do
 
     it "raises an error if the value is not a hash of strings" do
       expect { ConsistentRandom.testing.bytes("foo" => 1) }.to raise_error(ArgumentError)
+    end
+
+    it "raises an error if the value is an empty string" do
+      expect { ConsistentRandom.testing.bytes("") }.to raise_error(ArgumentError)
+      expect { ConsistentRandom.testing.bytes("foo" => "") }.to raise_error(ArgumentError)
     end
   end
 

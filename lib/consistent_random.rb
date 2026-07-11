@@ -4,8 +4,11 @@ require "digest/sha1"
 require "securerandom"
 
 class ConsistentRandom
-  SEED_DIVISOR = (2**64 - 1).to_f
-  private_constant :SEED_DIVISOR
+  # Divisor for converting the top 53 bits of a seed into a Float. Using 53 bits
+  # ensures the result is exactly representable so values are uniform in [0, 1)
+  # and can never round up to 1.0.
+  FLOAT_DIVISOR = 2.0**53
+  private_constant :FLOAT_DIVISOR
 
   autoload :RackMiddleware, "consistent_random/rack_middleware"
   autoload :SidekiqMiddleware, "consistent_random/sidekiq_middleware"
@@ -15,7 +18,7 @@ class ConsistentRandom
   class << self
     # Define a scope where consistent random values will be generated.
     #
-    # @param seeds [String, Symbol, Integer, Array<String>, Array<Integer>, nil] optional value to
+    # @param seed [String, Symbol, Integer, Array<String>, Array<Integer>, nil] optional value to
     #   use for generating random numbers. By default a random value will be generated. If the
     #   scope is nested in another scope block, then the seed from the parent scope will be used
     #   by default.
@@ -29,7 +32,7 @@ class ConsistentRandom
       when String, Symbol, Integer
         seed.to_s
       when Array
-        seed.map { |s| s.to_s }.join("\x1C")
+        seed.join("\x1C")
       else
         raise ArgumentError, "Invalid seed value: #{seed.inspect}"
       end
@@ -43,11 +46,11 @@ class ConsistentRandom
     end
 
     # Get the current seed used to generate random numbers. This will return nil if called
-    # outside of a scope.
+    # outside of a scope. The value can be passed to a new scope to generate the same
+    # random values in another thread or fiber.
     #
     # @return [String, nil] the seed value for the current scope
     #  or nil if called outside of a scope.
-    # @api private
     def current_seed
       Thread.current[:consistent_random_seed]
     end
@@ -74,7 +77,7 @@ class ConsistentRandom
   #   a number in that range. If max is an number, then it will be an integer between 0 and that
   #   value. Otherwise, it will be a float between 0 and 1.
   def rand(max = nil)
-    value = Testing.current&.rand_for(name) || seed / SEED_DIVISOR
+    value = Testing.current&.rand_for(name) || (seed >> 11) / FLOAT_DIVISOR
     case max
     when nil
       value
@@ -92,7 +95,6 @@ class ConsistentRandom
   # @return [String] a string of random bytes.
   def bytes(size)
     test_bytes = Testing.current&.bytes_for(name)
-    test_bytes = nil if test_bytes&.empty?
     chunk_size = (test_bytes ? test_bytes.length : 20)
 
     bytes = []
@@ -147,11 +149,19 @@ class ConsistentRandom
       raise ArgumentError, "Cannot generate random value for infinite range"
     end
 
+    unless min.is_a?(Numeric) && max.is_a?(Numeric)
+      raise ArgumentError, "Cannot generate random value for non-numeric range"
+    end
+
+    if min > max || (range.exclude_end? && min == max)
+      raise ArgumentError, "Cannot generate random value for empty range"
+    end
+
     int_range = min.is_a?(Integer) && max.is_a?(Integer)
     max += 1 if int_range && range.include?(max)
 
     val = (value * (max - min)) + min
-    int_range ? val.to_i : val
+    int_range ? val.floor : val
   end
 end
 

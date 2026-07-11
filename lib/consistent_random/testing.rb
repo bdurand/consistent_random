@@ -65,7 +65,7 @@ class ConsistentRandom
     def bytes(options, &block)
       options = validate_bytes(options)
       unless options
-        raise ArgumentError.new("Argument must be a String or a Hash with String values")
+        raise ArgumentError.new("Argument must be a non-empty String or a Hash with non-empty String values")
       end
 
       @bytes_hash = options.default ? options.merge(@bytes_hash) : @bytes_hash.merge(options)
@@ -151,9 +151,9 @@ class ConsistentRandom
     end
 
     def validate_bytes(options)
-      if options.is_a?(Hash) && options.values.all? { |value| value.is_a?(String) }
+      if options.is_a?(Hash) && options.values.all? { |value| value.is_a?(String) && !value.empty? }
         options.each_with_object({}) { |(key, value), hash| hash[key.to_s] = value.encode(Encoding::ASCII_8BIT) }
-      elsif options.is_a?(String)
+      elsif options.is_a?(String) && !options.empty?
         Hash.new(options)
       end
     end

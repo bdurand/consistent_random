@@ -17,6 +17,7 @@ end
 
 appraise "activejob_6" do
   gem "activejob", "~> 6.0.0"
+  gem "logger"
   remove_gem "sidekiq"
 end
 

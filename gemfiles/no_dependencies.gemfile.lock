@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    consistent_random (2.2.0)
+    consistent_random (2.3.0)
 
 GEM
   remote: https://rubygems.org/
@@ -94,7 +94,7 @@ DEPENDENCIES
 CHECKSUMS
   appraisal (2.5.0) sha256=36989221be127913b0dba8d114da2001e6b2dceea7bd4951200eaba764eed3ce
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
-  consistent_random (2.2.0)
+  consistent_random (2.3.0)
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
   json (2.20.0) sha256=9362bc6e55a952b056abf9167cf053358181c904cb70cd6eee0808ea830fc32b
   language_server-protocol (3.17.0.6) sha256=5ef2c0c138f8267e1bc631d3328347d354f96724b0af22f2c79516120443b7f0

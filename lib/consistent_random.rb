@@ -18,7 +18,7 @@ class ConsistentRandom
   class << self
     # Define a scope where consistent random values will be generated.
     #
-    # @param seeds [String, Symbol, Integer, Array<String>, Array<Integer>, nil] optional value to
+    # @param seed [String, Symbol, Integer, Array<String>, Array<Integer>, nil] optional value to
     #   use for generating random numbers. By default a random value will be generated. If the
     #   scope is nested in another scope block, then the seed from the parent scope will be used
     #   by default.

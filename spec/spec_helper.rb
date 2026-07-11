@@ -2,8 +2,6 @@
 
 require "bundler/setup"
 
-require "logger" # required for ActiveSupport 6
-
 require_relative "../lib/consistent_random"
 
 begin

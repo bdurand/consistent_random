@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe ConsistentRandom::RackMiddleware do
+RSpec.describe ConsistentRandom::RackMiddleware do
   it "wraps a request with a consistent random scope" do
     app = lambda do |env|
       expect(ConsistentRandom.new("foo").rand).to eq(ConsistentRandom.new("foo").rand)

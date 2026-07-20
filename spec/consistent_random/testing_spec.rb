@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe ConsistentRandom::Testing do
+RSpec.describe ConsistentRandom::Testing do
   describe "rand" do
     it "can specify the random value" do
       ConsistentRandom.testing.rand(0.5) do

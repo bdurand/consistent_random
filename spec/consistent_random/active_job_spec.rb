@@ -11,7 +11,7 @@ if defined?(ActiveJob)
     end
   end
 
-  describe ConsistentRandom::ActiveJob do
+  RSpec.describe ConsistentRandom::ActiveJob do
     it "wraps a job with a consistent random scope" do
       result = TestJob.perform_now("foo")
       expect(result[0]).to eq(result[1])

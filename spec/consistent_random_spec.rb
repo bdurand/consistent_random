@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe ConsistentRandom do
+RSpec.describe ConsistentRandom do
   describe "#name" do
     it "has a name" do
       expect(ConsistentRandom.new("foo").name).to eq("foo")

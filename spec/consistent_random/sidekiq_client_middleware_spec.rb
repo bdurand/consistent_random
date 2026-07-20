@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe ConsistentRandom::SidekiqClientMiddleware do
+RSpec.describe ConsistentRandom::SidekiqClientMiddleware do
   it "adds the current seeds to the job payload if the consistent_random option is set" do
     middleware = ConsistentRandom::SidekiqClientMiddleware.new
     job = {"args" => {"foo" => "bar"}}

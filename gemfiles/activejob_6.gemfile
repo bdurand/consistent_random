@@ -3,11 +3,7 @@
 source "https://rubygems.org"
 
 gem "activejob", "~> 6.0.0"
-gem "appraisal"
-gem "rackup"
-gem "rspec", "~> 3.0"
 gem "rake"
-gem "standard", "~>1.0"
-gem "yard"
+gem "rspec", "~> 3.11"
 
 gemspec path: "../"

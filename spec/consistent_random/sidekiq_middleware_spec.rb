@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe ConsistentRandom::SidekiqMiddleware do
+RSpec.describe ConsistentRandom::SidekiqMiddleware do
   it "wraps a job with a consistent random scope" do
     middleware = ConsistentRandom::SidekiqMiddleware.new
     job = {"args" => {"foo" => "bar"}}
